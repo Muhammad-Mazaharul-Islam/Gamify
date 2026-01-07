@@ -1,0 +1,30 @@
+/* Gamify App Styles */
+.App {
+  min-height: 100vh;
+  background: #000000;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Duration utility */
+.duration-400 {
+  transition-duration: 400ms;
+}
+
+/* Prevent layout shift */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Focus states */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #00FFD1;
+  outline-offset: 2px;
+}
