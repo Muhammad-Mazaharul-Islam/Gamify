@@ -1,4 +1,10 @@
 // Mock data for Gamify gaming currency shop
+import ValorantImg from '../assets/Valorant.jpg';
+import MobileLegendsImg from '../assets/MobileLegends.jpg';
+import GenshinImpactImg from '../assets/GenshinImapct.jpg';
+import FortniteImg from '../assets/Fortnite.jpg';
+import LOLImg from '../assets/LOL.jpg';
+import PubgImg from '../assets/pubg.jpg';
 
 export const games = [
   {
@@ -6,7 +12,7 @@ export const games = [
     name: 'Valorant',
     slug: 'valorant',
     description: 'Tactical 5v5 character-based shooter',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
+    image: ValorantImg,
     gradient: 'from-red-500/20 to-pink-500/20',
     accentColor: '#FF4655',
     currencies: [
@@ -23,7 +29,7 @@ export const games = [
     name: 'Mobile Legends',
     slug: 'mobile-legends',
     description: 'Ultimate 5v5 MOBA experience',
-    image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&q=80',
+    image: MobileLegendsImg,
     gradient: 'from-blue-500/20 to-cyan-500/20',
     accentColor: '#00D4FF',
     currencies: [
@@ -40,7 +46,7 @@ export const games = [
     name: 'Genshin Impact',
     slug: 'genshin-impact',
     description: 'Open-world action RPG adventure',
-    image: 'https://images.unsplash.com/photo-1551103782-8ab07afd45c1?w=800&q=80',
+    image: GenshinImpactImg,
     gradient: 'from-amber-500/20 to-orange-500/20',
     accentColor: '#FFB13B',
     currencies: [
@@ -57,7 +63,7 @@ export const games = [
     name: 'Fortnite',
     slug: 'fortnite',
     description: 'Battle Royale phenomenon',
-    image: 'https://images.unsplash.com/photo-1589241062272-c0a000072dfa?w=800&q=80',
+    image: FortniteImg,
     gradient: 'from-purple-500/20 to-indigo-500/20',
     accentColor: '#9D4DFF',
     currencies: [
@@ -72,7 +78,7 @@ export const games = [
     name: 'League of Legends',
     slug: 'league-of-legends',
     description: 'Premier MOBA experience',
-    image: 'https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?w=800&q=80',
+    image: LOLImg,
     gradient: 'from-yellow-500/20 to-amber-500/20',
     accentColor: '#C89B3C',
     currencies: [
@@ -88,7 +94,7 @@ export const games = [
     name: 'PUBG Mobile',
     slug: 'pubg-mobile',
     description: 'Intense battle royale action',
-    image: 'https://images.unsplash.com/photo-1552820728-8b83bb6b2b46?w=800&q=80',
+    image: PubgImg,
     gradient: 'from-orange-500/20 to-yellow-500/20',
     accentColor: '#F2A900',
     currencies: [
@@ -104,8 +110,8 @@ export const games = [
 export const features = [
   {
     id: 1,
-    title: 'Instant Delivery',
-    description: 'Get your game currency within minutes after purchase confirmation',
+    title: 'Fast Delivery',
+    description: 'Get your game currency within 10-20 minutes after purchase confirmation',
     icon: 'Zap'
   },
   {

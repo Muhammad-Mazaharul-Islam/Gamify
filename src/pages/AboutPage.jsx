@@ -10,22 +10,22 @@ const AboutPage = () => {
     {
       icon: Target,
       title: 'Our Mission',
-      description: 'To provide gamers worldwide with instant access to in-game currencies at the best prices, with unmatched reliability and security.'
+      description: 'Gamify is a revolutionary community designed to unite gamers and creators in a space where passion fuels innovation. Our mission is to cultivate an inclusive environment that encourages creativity, allowing individuals to discover and hone their unique talents. Gamify delivers exceptional value by building a supportive ecosystem that inspires growth, promotes collaboration, and enables members to unlock their full potential in the ever-evolving world of gaming and creativity.'
     },
     {
       icon: Users,
-      title: 'Community First',
-      description: 'We\`re gamers ourselves. We understand what the gaming community needs and we\`re committed to serving them.'
+      title: 'Our Vision',
+      description: 'Gamify envisions being the ultimate hub where gamers and creators shape the future of gaming. By empowering individuals and sparking collaboration, we aspire to redefine what\'s possible and inspire limitless growth and creative achievement.'
     },
     {
       icon: Award,
       title: 'Quality Service',
-      description: 'With 99.9% success rate and instant delivery, we pride ourselves on providing the best service in the industry.'
+      description: 'We are committed to delivering premium gaming experiences with secure transactions, reliable delivery, and dedicated customer support. Your satisfaction and trust are our top priorities.'
     },
     {
       icon: Globe,
-      title: 'Global Reach',
-      description: 'Serving gamers in over 150 countries with localized payment options and 24/7 multilingual support.'
+      title: 'Goals',
+      description: 'Gamify aims to transform the gaming landscape by launching tailored mentorship programs and monthly tournaments that showcase member talent. Each quarter, we facilitate collaborative projects and enhanced skill-sharing platforms to foster innovation and continuous learning. By forging strategic brand partnerships and targeting 20% annual membership growth, we provide our community with the resources, exposure, and vibrant environment needed for creativity to flourish.'
     }
   ];
 
@@ -54,35 +54,8 @@ const AboutPage = () => {
               About <span className="text-[#00FFD1] glow-text">Gamify</span>
             </h1>
             <p className="text-white/60 text-lg md:text-xl leading-relaxed">
-              We're on a mission to make gaming more accessible by providing instant, 
-              secure, and affordable in-game currencies to gamers worldwide.
+             Gamify is a dynamic hub that empowers gamers and creators through mentorship, engagingtournaments, and innovative skill-sharing. It fosters collaboration and inclusivity, transformingthegaming experience into a platform for personal and collective growth.
             </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="relative py-12">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 p-8 bg-white/5 border border-white/10"
-          >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-3xl md:text-4xl font-bold text-[#00FFD1] mb-2">{stat.value}</div>
-                <div className="text-white/50">{stat.label}</div>
-              </motion.div>
-            ))}
           </motion.div>
         </div>
       </section>
@@ -112,66 +85,17 @@ const AboutPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="p-8 bg-white/5 border border-white/10 hover:border-[#00FFD1]/30 transition-colors group"
+                className="p-8 bg-white/5 border border-white/10 hover:border-[#00FFD1]/30 transition-all duration-500 group overflow-hidden"
               >
                 <div className="w-14 h-14 bg-[#00FFD1]/10 flex items-center justify-center mb-6 group-hover:bg-[#00FFD1]/20 transition-colors">
                   <value.icon className="w-7 h-7 text-[#00FFD1]" />
                 </div>
                 <h3 className="text-2xl font-semibold text-white mb-4">{value.title}</h3>
-                <p className="text-white/60 leading-relaxed">{value.description}</p>
+                <p className="text-white/60 leading-relaxed max-h-24 group-hover:max-h-96 overflow-hidden transition-all duration-500 ease-in-out">
+                  {value.description}
+                </p>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline */}
-      <section className="relative py-20 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Our <span className="text-[#00FFD1]">Journey</span>
-            </h2>
-            <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              From a small startup to serving gamers worldwide
-            </p>
-          </motion.div>
-
-          <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10 hidden md:block" />
-
-            <div className="space-y-12">
-              {timeline.map((item, index) => (
-                <motion.div
-                  key={item.year}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`flex flex-col md:flex-row items-center gap-8 ${
-                    index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                  }`}
-                >
-                  <div className={`flex-1 ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
-                    <div className="p-6 bg-white/5 border border-white/10 inline-block">
-                      <span className="text-[#00FFD1] font-bold text-xl">{item.year}</span>
-                      <h3 className="text-white text-xl font-semibold mt-2">{item.title}</h3>
-                      <p className="text-white/60 mt-2">{item.description}</p>
-                    </div>
-                  </div>
-                  <div className="w-4 h-4 bg-[#00FFD1] rounded-full relative z-10 hidden md:block">
-                    <div className="absolute inset-0 bg-[#00FFD1] rounded-full animate-ping opacity-30" />
-                  </div>
-                  <div className="flex-1" />
-                </motion.div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -188,7 +112,7 @@ const AboutPage = () => {
               Join Our <span className="text-[#00FFD1]">Community</span>
             </h2>
             <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto mb-8">
-              Be part of 500,000+ gamers who trust Gamify for their gaming needs.
+              Experience fast, secure, and affordable gaming currency with unbeatable prices.
             </p>
             <Link to="/shop" className="btn-primary inline-flex items-center gap-2 text-lg">
               Start Shopping

@@ -53,7 +53,7 @@ const SupportPage = () => {
     {
       id: 8,
       question: 'How do I contact support?',
-      answer: 'You can reach us through our contact form, live chat, or email at support@gamify.com. Our team responds within 2 hours on average.'
+      answer: 'You can reach us through our contact form, live chat, or email at support@gamifyofficial.com. Our team responds within 2 hours on average.'
     }
   ];
 
@@ -79,7 +79,7 @@ const SupportPage = () => {
     {
       icon: Mail,
       title: 'Email Support',
-      description: 'support@gamify.com',
+      description: 'support@gamifyofficial.com',
       action: 'Send Email',
       available: true
     },

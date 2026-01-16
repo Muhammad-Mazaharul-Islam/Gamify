@@ -29,16 +29,6 @@ const LandingPage = () => {
               transition={{ duration: 0.8 }}
               className="relative z-10"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 mb-6"
-              >
-                <span className="w-2 h-2 bg-[#00FFD1] rounded-full animate-pulse" />
-                <span className="text-white/80 text-sm">Trusted by 500K+ Gamers</span>
-              </motion.div>
-
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -73,21 +63,6 @@ const LandingPage = () => {
                 <Link to="/about" className="btn-secondary flex items-center gap-2 text-lg">
                   Learn More
                 </Link>
-              </motion.div>
-
-              {/* Stats Row */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 pt-8 border-t border-white/10"
-              >
-                {stats.map((stat) => (
-                  <div key={stat.id}>
-                    <div className="text-2xl md:text-3xl font-bold text-[#00FFD1]">{stat.value}</div>
-                    <div className="text-white/50 text-sm">{stat.label}</div>
-                  </div>
-                ))}
               </motion.div>
             </motion.div>
 
@@ -276,7 +251,7 @@ const LandingPage = () => {
               Ready to <span className="text-[#00FFD1] glow-text">Level Up</span>?
             </h2>
             <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto mb-8">
-              Join over 500,000 gamers who trust Gamify for their in-game currency needs.
+              Get access to premium in-game currencies with fast delivery and secure payments.
             </p>
             <Link to="/shop" className="btn-primary inline-flex items-center gap-2 text-lg">
               Start Shopping Now

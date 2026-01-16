@@ -22,8 +22,7 @@ const Footer = () => {
     ],
     legal: [
       { label: 'Terms of Service', path: '/terms' },
-      { label: 'Privacy Policy', path: '/privacy' },
-      { label: 'Refund Policy', path: '/refund' }
+      { label: 'Privacy Policy', path: '/privacy' }
     ]
   };
 
@@ -116,26 +115,6 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-
-        {/* Newsletter */}
-        <div className="border-t border-white/10 pt-8 pb-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h4 className="text-white font-semibold mb-1">Subscribe to our newsletter</h4>
-              <p className="text-white/60 text-sm">Get exclusive deals and updates delivered to your inbox</p>
-            </div>
-            <div className="flex w-full md:w-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-white/5 border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-[#00FFD1] w-full md:w-64"
-              />
-              <button className="btn-primary whitespace-nowrap">
-                <Mail className="w-5 h-5" />
-              </button>
-            </div>
           </div>
         </div>
 
