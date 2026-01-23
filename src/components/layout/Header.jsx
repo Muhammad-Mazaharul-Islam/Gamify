@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, Gamepad2 } from 'lucide-react';
+import { Menu, X, ShoppingCart, Gamepad2, User } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import logo from '../../assets/logo.png';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,13 +72,30 @@ const Header = () => {
 
         {/* CTA Button */}
         <div className="hidden md:flex items-center gap-4">
-          <Link
-            to="/shop"
-            className="btn-primary flex items-center gap-2"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            Shop Now
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              to="/profile"
+              className="text-white/80 hover:text-white transition-colors font-medium flex items-center gap-2"
+            >
+              <User className="w-5 h-5" />
+              <span>Profile</span>
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-white/80 hover:text-white transition-colors font-medium"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                className="btn-primary"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -112,13 +131,36 @@ const Header = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/shop"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="btn-primary text-center mt-4"
-              >
-                Shop Now
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  to="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`text-lg font-medium py-2 ${
+                    location.pathname === '/profile'
+                      ? 'text-[#00FFD1]'
+                      : 'text-white/60'
+                  }`}
+                >
+                  Profile
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="btn-secondary text-center mt-4"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="btn-primary text-center"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
             </nav>
           </motion.div>
         )}

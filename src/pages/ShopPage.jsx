@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Filter, ChevronDown, Star, Check, ShoppingCart, X } from 'lucide-react';
 import AnimatedBackground from '../components/AnimatedBackground';
 import { games } from '../data/mock';
@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialGame = searchParams.get('game') || 'all';
   
   const [selectedGame, setSelectedGame] = useState(initialGame);
@@ -359,7 +360,7 @@ const ShopPage = () => {
                   </div>
                   <button
                     onClick={() => {
-                      toast.success('Checkout functionality coming soon!');
+                      navigate('/checkout', { state: { cart } });
                     }}
                     className="btn-primary w-full text-center text-lg"
                   >
