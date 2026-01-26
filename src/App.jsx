@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CheckoutPage from './pages/CheckoutPage';
 import ProfilePage from './pages/ProfilePage';
+import PublicProfilePage from './pages/PublicProfilePage';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/:username" element={<PublicProfilePage />} />
             </Routes>
           </main>
           <Footer />
