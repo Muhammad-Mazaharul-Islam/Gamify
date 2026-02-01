@@ -1,64 +1,71 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 const AnimatedBackground = React.memo(() => {
   const canvasRef = useRef(null);
-  const [isLowPerformance, setIsLowPerformance] = useState(null); // null = detecting, true = low perf, false = high perf
+  const workerRef = useRef(null);
 
   useEffect(() => {
-    // GPU Detection: Check for integrated/low-end GPUs
-    const detectGPU = async () => {
-      try {
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        
-        if (gl) {
-          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-          if (debugInfo) {
-            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-            const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
-            
-            console.log('GPU Detected:', renderer, vendor);
-            
-            // High-end mobile GPUs that can handle animations
-            const isHighEndMobile = /Mali-G[6-9][0-9]|Adreno.*[6-8][0-9]{2}|Apple GPU/i.test(renderer);
-            
-            // Low-end GPUs that should disable animations
-            const isLowEndDesktop = /Intel.*HD|Intel.*UHD.*[2-6][0-9]{2}|AMD.*Vega.*[0-9]{1,2}\s*Graphics/i.test(renderer);
-            const isLowEndMobile = /Mali-[4-5][0-9]{2}|Mali-T|Adreno.*[2-5][0-9]{2}/i.test(renderer);
-            
-            const shouldDisable = (isLowEndDesktop || isLowEndMobile) && !isHighEndMobile;
-            
-            console.log('Performance Assessment:', {
-              isHighEndMobile,
-              isLowEndDesktop,
-              isLowEndMobile,
-              animationsDisabled: shouldDisable
-            });
-            
-            setIsLowPerformance(shouldDisable);
-            return shouldDisable;
-          }
-        }
-        setIsLowPerformance(false);
-        return false;
-      } catch (error) {
-        console.log('GPU detection failed, enabling animations by default');
-        setIsLowPerformance(false);
-        return false;
-      }
-    };
+    const canvas = canvasRef.current;
     
-    const initAnimation = async () => {
-      const isLowPerf = await detectGPU();
+    // Check for OffscreenCanvas support
+    const supportsOffscreenCanvas = typeof OffscreenCanvas !== 'undefined' && canvas.transferControlToOffscreen;
+    
+    if (supportsOffscreenCanvas) {
+      // Use Web Worker with OffscreenCanvas for better performance
+      console.log('Using OffscreenCanvas with Web Worker for optimal performance');
       
-      // Don't run animations if low performance GPU detected
-      if (isLowPerf) {
-        console.log('Low performance GPU detected, animations disabled');
-        return;
+      try {
+        const offscreen = canvas.transferControlToOffscreen();
+        const worker = new Worker(new URL('../workers/particleWorker.js', import.meta.url), { type: 'module' });
+        workerRef.current = worker;
+        
+        const sendInit = () => {
+          worker.postMessage({
+            type: 'init',
+            data: {
+              canvas: offscreen,
+              width: window.innerWidth,
+              height: window.innerHeight,
+              particleCount: 25
+            }
+          }, [offscreen]);
+        };
+        
+        sendInit();
+        
+        // Handle resize
+        let resizeTimeout;
+        const handleResize = () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            worker.postMessage({
+              type: 'resize',
+              data: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                particleCount: 25
+              }
+            });
+          }, 250);
+        };
+        
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+          worker.postMessage({ type: 'stop' });
+          worker.terminate();
+          window.removeEventListener('resize', handleResize);
+          clearTimeout(resizeTimeout);
+        };
+      } catch (error) {
+        console.log('OffscreenCanvas failed, falling back to main thread:', error);
       }
-      
-      const canvas = canvasRef.current;
+    }
+    
+    // Fallback: Traditional canvas rendering on main thread
+    console.log('Using traditional canvas rendering on main thread');
+    
     const ctx = canvas.getContext('2d');
     let animationFrameId;
     let particles = [];
@@ -70,7 +77,6 @@ const AnimatedBackground = React.memo(() => {
 
     const createParticles = () => {
       particles = [];
-      // More particles since we removed expensive connection calculations
       const particleCount = 25;
       for (let i = 0; i < particleCount; i++) {
         particles.push({
@@ -98,7 +104,7 @@ const AnimatedBackground = React.memo(() => {
         if (particle.y < 0) particle.y = canvas.height;
         if (particle.y > canvas.height) particle.y = 0;
 
-        // Draw particle only (connections removed for performance)
+        // Draw particle
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(0, 255, 209, ${particle.opacity})`;
@@ -108,44 +114,41 @@ const AnimatedBackground = React.memo(() => {
       animationFrameId = requestAnimationFrame(drawParticles);
     };
 
-      resizeCanvas();
-      createParticles();
-      drawParticles();
+    resizeCanvas();
+    createParticles();
+    drawParticles();
 
-      // Throttle resize events for better performance
-      let resizeTimeout;
-      const handleResize = () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-          resizeCanvas();
-          createParticles();
-        }, 250);
-      };
-
-      window.addEventListener('resize', handleResize);
-
-      return () => {
-        cancelAnimationFrame(animationFrameId);
-        window.removeEventListener('resize', handleResize);
-        clearTimeout(resizeTimeout);
-      };
+    // Throttle resize events for better performance
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        resizeCanvas();
+        createParticles();
+      }, 250);
     };
-    
-    initAnimation();
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
   }, []);
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-      {/* Particle Canvas - Hidden on low performance devices */}
-      {!isLowPerformance && <canvas ref={canvasRef} className="absolute inset-0" />}
+      {/* Particle Canvas */}
+      <canvas ref={canvasRef} className="absolute inset-0" />
 
-      {/* Gradient Orbs - Simpler animations on low performance devices */}
+      {/* Gradient Orbs */}
       <motion.div
-        animate={!isLowPerformance ? {
+        animate={{
           x: [0, 100, 0],
           y: [0, -50, 0],
           scale: [1, 1.2, 1]
-        } : {}}
+        }}
         transition={{
           duration: 20,
           repeat: Infinity,
@@ -154,11 +157,11 @@ const AnimatedBackground = React.memo(() => {
         className="absolute top-1/4 -left-32 w-96 h-96 bg-[#00FFD1]/10 rounded-full blur-[120px]"
       />
       <motion.div
-        animate={!isLowPerformance ? {
+        animate={{
           x: [0, -80, 0],
           y: [0, 80, 0],
           scale: [1, 0.8, 1]
-        } : {}}
+        }}
         transition={{
           duration: 25,
           repeat: Infinity,
@@ -167,10 +170,10 @@ const AnimatedBackground = React.memo(() => {
         className="absolute bottom-1/4 -right-32 w-80 h-80 bg-[#00FFD1]/5 rounded-full blur-[100px]"
       />
       <motion.div
-        animate={!isLowPerformance ? {
+        animate={{
           x: [0, 50, 0],
           y: [0, 100, 0]
-        } : {}}
+        }}
         transition={{
           duration: 30,
           repeat: Infinity,
