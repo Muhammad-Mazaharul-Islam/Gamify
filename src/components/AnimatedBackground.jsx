@@ -1,10 +1,39 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 const AnimatedBackground = React.memo(() => {
   const canvasRef = useRef(null);
+  const [isLowPerformance, setIsLowPerformance] = useState(false);
 
   useEffect(() => {
+    // GPU Detection: Check for integrated/low-end GPUs
+    const detectGPU = async () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        
+        if (gl) {
+          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+          if (debugInfo) {
+            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+            const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+            
+            // Check for integrated GPUs (Intel HD/UHD, AMD Vega integrated, etc.)
+            const isIntegrated = /Intel.*HD|Intel.*UHD|AMD.*Vega.*[0-9]{1,2}\s*Graphics|Mali|Adreno/i.test(renderer);
+            
+            if (isIntegrated) {
+              setIsLowPerformance(true);
+              return;
+            }
+          }
+        }
+      } catch (error) {
+        console.log('GPU detection failed, using default animation');
+      }
+    };
+    
+    detectGPU();
+    
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
@@ -17,38 +46,24 @@ const AnimatedBackground = React.memo(() => {
 
     const createParticles = () => {
       particles = [];
-      // Reduced from 25 to 12 particles for much better performance on low-end devices
-      const particleCount = 12;
+      // More particles since we removed expensive connection calculations
+      const particleCount = 25;
       for (let i = 0; i < particleCount; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           size: Math.random() * 2 + 1,
-          speedX: (Math.random() - 0.5) * 0.3,
-          speedY: (Math.random() - 0.5) * 0.3,
-          opacity: Math.random() * 0.4 + 0.1
+          speedX: (Math.random() - 0.5) * 0.5,
+          speedY: (Math.random() - 0.5) * 0.5,
+          opacity: Math.random() * 0.5 + 0.2
         });
       }
     };
 
-    let lastFrameTime = 0;
-    const targetFPS = 30; // Limit to 30 FPS instead of 60 for better performance
-    const frameInterval = 1000 / targetFPS;
-
-    const drawParticles = (currentTime) => {
-      // Throttle frame rate
-      const deltaTime = currentTime - lastFrameTime;
-      
-      if (deltaTime < frameInterval) {
-        animationFrameId = requestAnimationFrame(drawParticles);
-        return;
-      }
-      
-      lastFrameTime = currentTime - (deltaTime % frameInterval);
-      
+    const drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      particles.forEach((particle, index) => {
+      particles.forEach((particle) => {
         // Update position
         particle.x += particle.speedX;
         particle.y += particle.speedY;
@@ -59,41 +74,22 @@ const AnimatedBackground = React.memo(() => {
         if (particle.y < 0) particle.y = canvas.height;
         if (particle.y > canvas.height) particle.y = 0;
 
-        // Draw particle
+        // Draw particle only (connections removed for performance)
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(0, 255, 209, ${particle.opacity})`;
         ctx.fill();
-
-        // Draw connections - only check particles after current index to avoid duplicates
-        // Reduced connection distance from 150 to 100 for fewer lines
-        for (let j = index + 1; j < particles.length; j++) {
-          const otherParticle = particles[j];
-          const dx = particle.x - otherParticle.x;
-          const dy = particle.y - otherParticle.y;
-          const distanceSquared = dx * dx + dy * dy;
-          const maxDistance = 100; // Reduced from 150
-          const maxDistanceSquared = maxDistance * maxDistance;
-
-          // Use squared distance to avoid expensive sqrt calculation
-          if (distanceSquared < maxDistanceSquared) {
-            const distance = Math.sqrt(distanceSquared);
-            ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(otherParticle.x, otherParticle.y);
-            ctx.strokeStyle = `rgba(0, 255, 209, ${0.08 * (1 - distance / maxDistance)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
       });
 
       animationFrameId = requestAnimationFrame(drawParticles);
     };
 
-    resizeCanvas();
-    createParticles();
-    drawParticles(0); // Pass initial timestamp
+    // Only run animations if not low performance GPU
+    if (!isLowPerformance) {
+      resizeCanvas();
+      createParticles();
+      drawParticles();
+    }
 
     // Throttle resize events for better performance
     let resizeTimeout;
@@ -112,20 +108,20 @@ const AnimatedBackground = React.memo(() => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(resizeTimeout);
     };
-  }, []);
+  }, [isLowPerformance]);
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-      {/* Particle Canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0" />
+      {/* Particle Canvas - Hidden on low performance devices */}
+      {!isLowPerformance && <canvas ref={canvasRef} className="absolute inset-0" />}
 
-      {/* Gradient Orbs */}
+      {/* Gradient Orbs - Simpler animations on low performance devices */}
       <motion.div
-        animate={{
+        animate={!isLowPerformance ? {
           x: [0, 100, 0],
           y: [0, -50, 0],
           scale: [1, 1.2, 1]
-        }}
+        } : {}}
         transition={{
           duration: 20,
           repeat: Infinity,
@@ -134,11 +130,11 @@ const AnimatedBackground = React.memo(() => {
         className="absolute top-1/4 -left-32 w-96 h-96 bg-[#00FFD1]/10 rounded-full blur-[120px]"
       />
       <motion.div
-        animate={{
+        animate={!isLowPerformance ? {
           x: [0, -80, 0],
           y: [0, 80, 0],
           scale: [1, 0.8, 1]
-        }}
+        } : {}}
         transition={{
           duration: 25,
           repeat: Infinity,
@@ -147,10 +143,10 @@ const AnimatedBackground = React.memo(() => {
         className="absolute bottom-1/4 -right-32 w-80 h-80 bg-[#00FFD1]/5 rounded-full blur-[100px]"
       />
       <motion.div
-        animate={{
+        animate={!isLowPerformance ? {
           x: [0, 50, 0],
           y: [0, 100, 0]
-        }}
+        } : {}}
         transition={{
           duration: 30,
           repeat: Infinity,
