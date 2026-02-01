@@ -17,21 +17,35 @@ const AnimatedBackground = React.memo(() => {
 
     const createParticles = () => {
       particles = [];
-      // Reduced from 50 to 25 particles for better performance
-      const particleCount = 25;
+      // Reduced from 25 to 12 particles for much better performance on low-end devices
+      const particleCount = 12;
       for (let i = 0; i < particleCount; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 3 + 1,
-          speedX: (Math.random() - 0.5) * 0.5,
-          speedY: (Math.random() - 0.5) * 0.5,
-          opacity: Math.random() * 0.5 + 0.2
+          size: Math.random() * 2 + 1,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.4 + 0.1
         });
       }
     };
 
-    const drawParticles = () => {
+    let lastFrameTime = 0;
+    const targetFPS = 30; // Limit to 30 FPS instead of 60 for better performance
+    const frameInterval = 1000 / targetFPS;
+
+    const drawParticles = (currentTime) => {
+      // Throttle frame rate
+      const deltaTime = currentTime - lastFrameTime;
+      
+      if (deltaTime < frameInterval) {
+        animationFrameId = requestAnimationFrame(drawParticles);
+        return;
+      }
+      
+      lastFrameTime = currentTime - (deltaTime % frameInterval);
+      
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       particles.forEach((particle, index) => {
@@ -52,13 +66,13 @@ const AnimatedBackground = React.memo(() => {
         ctx.fill();
 
         // Draw connections - only check particles after current index to avoid duplicates
-        // This reduces calculations from O(n²) to O(n²/2)
+        // Reduced connection distance from 150 to 100 for fewer lines
         for (let j = index + 1; j < particles.length; j++) {
           const otherParticle = particles[j];
           const dx = particle.x - otherParticle.x;
           const dy = particle.y - otherParticle.y;
           const distanceSquared = dx * dx + dy * dy;
-          const maxDistance = 150;
+          const maxDistance = 100; // Reduced from 150
           const maxDistanceSquared = maxDistance * maxDistance;
 
           // Use squared distance to avoid expensive sqrt calculation
@@ -67,8 +81,8 @@ const AnimatedBackground = React.memo(() => {
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(otherParticle.x, otherParticle.y);
-            ctx.strokeStyle = `rgba(0, 255, 209, ${0.1 * (1 - distance / maxDistance)})`;
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = `rgba(0, 255, 209, ${0.08 * (1 - distance / maxDistance)})`;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
@@ -79,7 +93,7 @@ const AnimatedBackground = React.memo(() => {
 
     resizeCanvas();
     createParticles();
-    drawParticles();
+    drawParticles(0); // Pass initial timestamp
 
     // Throttle resize events for better performance
     let resizeTimeout;
@@ -150,5 +164,7 @@ const AnimatedBackground = React.memo(() => {
     </div>
   );
 });
+
+AnimatedBackground.displayName = 'AnimatedBackground';
 
 export default AnimatedBackground;
