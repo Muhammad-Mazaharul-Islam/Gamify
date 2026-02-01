@@ -27,7 +27,8 @@ const Sphere = ({ position, color, size }) => {
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-      <sphereGeometry args={[size, 16, 16]} />
+      {/* Reduced from 16,16 to 8,8 for 75% fewer polygons */}
+      <sphereGeometry args={[size, 8, 8]} />
       <meshStandardMaterial
         color={color}
         emissive={hovered ? "#00FFD1" : color}
@@ -53,7 +54,8 @@ const Logo3DStructure = () => {
     img.onload = () => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const size = 64;
+      // Reduced from 64 to 32 for 75% fewer spheres
+      const size = 32;
       canvas.width = size;
       canvas.height = size;
 
@@ -69,8 +71,10 @@ const Logo3DStructure = () => {
     const data = logoData.data;
     const size = logoData.width;
     const sphereArray = [];
-    const gap = 3;
-    const depth = 10;
+    // Increased from 3 to 5 to sample fewer pixels
+    const gap = 5;
+    // Reduced from 10 to 3 depth layers (70% reduction)
+    const depth = 3;
 
     for (let y = 0; y < size; y += gap) {
       for (let x = 0; x < size; x += gap) {
@@ -129,14 +133,14 @@ const Logo3DStructure = () => {
         <Sphere key={index} {...sphere} />
       ))}
       
-      {/* Ambient particles for effect */}
+      {/* Ambient particles for effect - Reduced from 200 to 50 */}
       <points>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={200}
+            count={50}
             array={new Float32Array(
-              Array.from({ length: 200 * 3 }, () => (Math.random() - 0.5) * 20)
+              Array.from({ length: 50 * 3 }, () => (Math.random() - 0.5) * 20)
             )}
             itemSize={3}
           />
@@ -153,7 +157,7 @@ const Logo3DStructure = () => {
   );
 };
 
-const AnimatedLogo = () => {
+const AnimatedLogo = React.memo(() => {
   return (
     <div className="w-full h-full">
       <Canvas camera={{ position: [0, 0, 12], fov: 50 }}>
@@ -166,6 +170,6 @@ const AnimatedLogo = () => {
       </Canvas>
     </div>
   );
-};
+});
 
 export default AnimatedLogo;

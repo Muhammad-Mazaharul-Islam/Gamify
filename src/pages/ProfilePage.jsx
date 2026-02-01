@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, 
@@ -20,7 +21,6 @@ import {
   Globe
 } from 'lucide-react';
 import AnimatedBackground from '../components/AnimatedBackground';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import avatarImage from '../assets/avatar.png';
@@ -31,7 +31,6 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('orders');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   const handleLogout = () => {
@@ -166,15 +165,22 @@ const ProfilePage = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              <button 
-                onClick={() => setShowSettings(true)}
-                className="p-3 bg-white/5 border border-white/10 hover:border-[#00FFD1] transition-colors group"
+              <Link
+                to="/edit-profile"
+                className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 hover:border-[#00FFD1] transition-colors group rounded-md"
               >
-                <Settings className="w-5 h-5 text-white/60 group-hover:text-[#00FFD1]" />
-              </button>
+                <Edit2 className="w-4 h-4 text-white/60 group-hover:text-[#00FFD1]" />
+                <span className="text-white/60 group-hover:text-white text-sm">Edit Profile</span>
+              </Link>
+              <Link
+                to="/settings"
+                className="px-4 py-2 bg-white/5 border border-white/10 hover:border-[#00FFD1] transition-colors text-white/60 hover:text-white text-sm rounded-md"
+              >
+                Settings
+              </Link>
               <button 
                 onClick={handleLogout}
-                className="p-3 bg-white/5 border border-white/10 hover:border-red-400 transition-colors group"
+                className="p-3 bg-white/5 border border-white/10 hover:border-red-400 transition-colors group rounded-md"
               >
                 <LogOut className="w-5 h-5 text-white/60 group-hover:text-red-400" />
               </button>
@@ -487,108 +493,6 @@ const ProfilePage = () => {
                     <span className="text-[#00FFD1]">${selectedOrder.total.toFixed(2)}</span>
                   </div>
                 </div>
-              </div>
-              </motion.div>
-            </div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Settings Modal */}
-      <AnimatePresence>
-        {showSettings && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 z-50 backdrop-blur-sm"
-              onClick={() => setShowSettings(false)}
-            />
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowSettings(false)}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-2xl bg-black border border-white/10 p-6 max-h-[85vh] overflow-auto"
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white">Settings</h2>
-                <button
-                  onClick={() => setShowSettings(false)}
-                  className="p-2 hover:bg-white/10 transition-colors"
-                >
-                  <X className="w-6 h-6 text-white" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-white/5 border border-white/10 p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <User className="w-5 h-5 text-[#00FFD1]" />
-                    <h3 className="text-lg font-semibold text-white">Account Settings</h3>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-white/60 text-sm block mb-1">Full Name</label>
-                      <input
-                        type="text"
-                        defaultValue={userData.name}
-                        className="w-full bg-white/5 border border-white/10 px-4 py-2 text-white focus:outline-none focus:border-[#00FFD1] transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-white/60 text-sm block mb-1">Email</label>
-                      <input
-                        type="email"
-                        defaultValue={userData.email}
-                        className="w-full bg-white/5 border border-white/10 px-4 py-2 text-white focus:outline-none focus:border-[#00FFD1] transition-colors"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 border border-white/10 p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Bell className="w-5 h-5 text-[#00FFD1]" />
-                    <h3 className="text-lg font-semibold text-white">Notifications</h3>
-                  </div>
-                  <div className="space-y-3">
-                    <label className="flex items-center justify-between cursor-pointer">
-                      <span className="text-white/80">Order Updates</span>
-                      <input type="checkbox" defaultChecked className="w-5 h-5" />
-                    </label>
-                    <label className="flex items-center justify-between cursor-pointer">
-                      <span className="text-white/80">Promotional Emails</span>
-                      <input type="checkbox" className="w-5 h-5" />
-                    </label>
-                    <label className="flex items-center justify-between cursor-pointer">
-                      <span className="text-white/80">New Games</span>
-                      <input type="checkbox" defaultChecked className="w-5 h-5" />
-                    </label>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 border border-white/10 p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Lock className="w-5 h-5 text-[#00FFD1]" />
-                    <h3 className="text-lg font-semibold text-white">Security</h3>
-                  </div>
-                  <button className="w-full bg-white/5 border border-white/10 px-4 py-2 text-white/80 hover:border-[#00FFD1] hover:text-[#00FFD1] transition-colors">
-                    Change Password
-                  </button>
-                </div>
-
-                <button 
-                  onClick={() => {
-                    toast.success('Settings saved successfully!');
-                    setShowSettings(false);
-                  }}
-                  className="btn-primary w-full text-center"
-                >
-                  Save Changes
-                </button>
               </div>
               </motion.div>
             </div>

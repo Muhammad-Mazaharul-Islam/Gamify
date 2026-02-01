@@ -11,12 +11,9 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
 
   const handleChange = (e) => {
@@ -28,18 +25,10 @@ const RegisterPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match!');
-      return;
-    }
-    // Handle registration logic here
-    const userData = {
-      name: formData.name,
-      email: formData.email
-    };
-    login(userData);
-    toast.success('Registration successful!');
-    navigate('/');
+    // Store email in sessionStorage for onboarding page
+    sessionStorage.setItem('registrationEmail', formData.email);
+    toast.success('Account created! Complete your profile to continue.');
+    navigate('/onboarding');
   };
 
   return (
@@ -61,17 +50,6 @@ const RegisterPage = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name Field */}
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                placeholder="Full Name"
-                className="w-full bg-white/5 border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-[#00FFD1] transition-colors rounded-md"
-              />
-
               {/* Email Field */}
               <input
                 type="email"
@@ -100,26 +78,6 @@ const RegisterPage = () => {
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-
-              {/* Confirm Password Field */}
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  placeholder="Confirm Password"
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 pr-12 text-white placeholder:text-white/40 focus:outline-none focus:border-[#00FFD1] transition-colors rounded-md"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
 

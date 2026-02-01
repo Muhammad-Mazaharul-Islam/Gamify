@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import Spline from '@splinetool/react-spline';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Zap, Shield, Headphones, Tag, Star, ChevronRight } from 'lucide-react';
 import AnimatedBackground from '../components/AnimatedBackground';
 import { games, features, testimonials, stats } from '../data/mock';
@@ -14,6 +13,19 @@ const iconMap = {
 };
 
 const LandingPage = () => {
+  const [currentGameIndex, setCurrentGameIndex] = useState(0);
+
+  // Auto-slide effect - changes every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentGameIndex((prevIndex) => (prevIndex + 1) % games.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentGame = games[currentGameIndex];
+
   return (
     <div className="min-h-screen bg-black overflow-hidden">
       <AnimatedBackground />
@@ -40,15 +52,24 @@ const LandingPage = () => {
                 <span className="text-[#00FFD1] glow-text">Gaming Experience</span>
               </motion.h1>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-white/60 text-lg md:text-xl max-w-lg mb-8 leading-relaxed"
-              >
-                Get instant access to in-game currencies for your favorite games. 
-                Fast delivery, secure payments, and unbeatable prices.
-              </motion.p>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentGameIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-8"
+                >
+                  <p className="text-white/60 text-lg md:text-xl max-w-lg leading-relaxed mb-4">
+                    Get <span className="text-[#00FFD1] font-semibold">{currentGame.name}</span> currency instantly. 
+                    Fast delivery, secure payments, and unbeatable prices.
+                  </p>
+                  <p className="text-white/80 text-base">
+                    Starting from <span className="text-[#00FFD1] font-bold text-xl">${currentGame.currencies[0].price.toFixed(2)}</span>
+                  </p>
+                </motion.div>
+              </AnimatePresence>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -60,21 +81,73 @@ const LandingPage = () => {
                   Browse Shop
                   <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link to="/about" className="btn-secondary flex items-center gap-2 text-lg">
-                  Learn More
+                <Link 
+                  to={`/shop?game=${currentGame.slug}`}
+                  className="btn-secondary flex items-center gap-2 text-lg"
+                >
+                  View {currentGame.name}
                 </Link>
               </motion.div>
             </motion.div>
 
-            {/* Right - 3D Spline */}
+            {/* Right - Auto-fading Game Images */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
-              className="relative hidden lg:block"
+              className="relative hidden lg:block w-full aspect-[16/10]"
             >
-              <div className="w-[700px] h-[700px] overflow-visible relative -mr-20">
-                <Spline scene="https://prod.spline.design/NbVmy6DPLhY-5Lvg/scene.splinecode" />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentGameIndex}
+                  initial={{ opacity: 0, scale: 1.1 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 1 }}
+                  className="absolute inset-0 rounded-lg overflow-hidden"
+                >
+                  <div className="relative w-full h-full">
+                    <img
+                      src={currentGame.image}
+                      alt={currentGame.name}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                    <div className="absolute bottom-8 left-8 right-8">
+                      <motion.h3 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-5xl font-bold text-white mb-2 drop-shadow-2xl"
+                      >
+                        {currentGame.name}
+                      </motion.h3>
+                      <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-white/80 text-lg"
+                      >
+                        {currentGame.description}
+                      </motion.p>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Slide Indicators */}
+              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                {games.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentGameIndex(index)}
+                    className={`h-2 rounded-full transition-all ${
+                      index === currentGameIndex 
+                        ? 'w-8 bg-[#00FFD1]' 
+                        : 'w-2 bg-white/30 hover:bg-white/50'
+                    }`}
+                  />
+                ))}
               </div>
             </motion.div>
           </div>

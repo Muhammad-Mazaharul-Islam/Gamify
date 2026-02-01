@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
-const AnimatedBackground = () => {
+const AnimatedBackground = React.memo(() => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -17,7 +17,8 @@ const AnimatedBackground = () => {
 
     const createParticles = () => {
       particles = [];
-      const particleCount = 50;
+      // Reduced from 50 to 25 particles for better performance
+      const particleCount = 25;
       for (let i = 0; i < particleCount; i++) {
         particles.push({
           x: Math.random() * canvas.width,
@@ -50,23 +51,27 @@ const AnimatedBackground = () => {
         ctx.fillStyle = `rgba(0, 255, 209, ${particle.opacity})`;
         ctx.fill();
 
-        // Draw connections
-        particles.forEach((otherParticle, otherIndex) => {
-          if (index !== otherIndex) {
-            const dx = particle.x - otherParticle.x;
-            const dy = particle.y - otherParticle.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+        // Draw connections - only check particles after current index to avoid duplicates
+        // This reduces calculations from O(n²) to O(n²/2)
+        for (let j = index + 1; j < particles.length; j++) {
+          const otherParticle = particles[j];
+          const dx = particle.x - otherParticle.x;
+          const dy = particle.y - otherParticle.y;
+          const distanceSquared = dx * dx + dy * dy;
+          const maxDistance = 150;
+          const maxDistanceSquared = maxDistance * maxDistance;
 
-            if (distance < 150) {
-              ctx.beginPath();
-              ctx.moveTo(particle.x, particle.y);
-              ctx.lineTo(otherParticle.x, otherParticle.y);
-              ctx.strokeStyle = `rgba(0, 255, 209, ${0.1 * (1 - distance / 150)})`;
-              ctx.lineWidth = 1;
-              ctx.stroke();
-            }
+          // Use squared distance to avoid expensive sqrt calculation
+          if (distanceSquared < maxDistanceSquared) {
+            const distance = Math.sqrt(distanceSquared);
+            ctx.beginPath();
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(otherParticle.x, otherParticle.y);
+            ctx.strokeStyle = `rgba(0, 255, 209, ${0.1 * (1 - distance / maxDistance)})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
           }
-        });
+        }
       });
 
       animationFrameId = requestAnimationFrame(drawParticles);
@@ -76,14 +81,22 @@ const AnimatedBackground = () => {
     createParticles();
     drawParticles();
 
-    window.addEventListener('resize', () => {
-      resizeCanvas();
-      createParticles();
-    });
+    // Throttle resize events for better performance
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        resizeCanvas();
+        createParticles();
+      }, 250);
+    };
+
+    window.addEventListener('resize', handleResize);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
     };
   }, []);
 
@@ -136,6 +149,6 @@ const AnimatedBackground = () => {
       <div className="absolute inset-0 grid-pattern opacity-30" />
     </div>
   );
-};
+});
 
 export default AnimatedBackground;
