@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const AnimatedBackground = React.memo(() => {
   const canvasRef = useRef(null);
-  const [isLowPerformance, setIsLowPerformance] = useState(false);
+  const [isLowPerformance, setIsLowPerformance] = useState(null); // null = detecting, true = low perf, false = high perf
 
   useEffect(() => {
     // GPU Detection: Check for integrated/low-end GPUs
@@ -18,23 +18,34 @@ const AnimatedBackground = React.memo(() => {
             const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
             const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
             
+            console.log('GPU Detected:', renderer, vendor);
+            
             // Check for integrated GPUs (Intel HD/UHD, AMD Vega integrated, etc.)
             const isIntegrated = /Intel.*HD|Intel.*UHD|AMD.*Vega.*[0-9]{1,2}\s*Graphics|Mali|Adreno/i.test(renderer);
             
-            if (isIntegrated) {
-              setIsLowPerformance(true);
-              return;
-            }
+            setIsLowPerformance(isIntegrated);
+            return isIntegrated;
           }
         }
+        setIsLowPerformance(false);
+        return false;
       } catch (error) {
-        console.log('GPU detection failed, using default animation');
+        console.log('GPU detection failed, enabling animations by default');
+        setIsLowPerformance(false);
+        return false;
       }
     };
     
-    detectGPU();
-    
-    const canvas = canvasRef.current;
+    const initAnimation = async () => {
+      const isLowPerf = await detectGPU();
+      
+      // Don't run animations if low performance GPU detected
+      if (isLowPerf) {
+        console.log('Low performance GPU detected, animations disabled');
+        return;
+      }
+      
+      const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
     let particles = [];
@@ -84,31 +95,31 @@ const AnimatedBackground = React.memo(() => {
       animationFrameId = requestAnimationFrame(drawParticles);
     };
 
-    // Only run animations if not low performance GPU
-    if (!isLowPerformance) {
       resizeCanvas();
       createParticles();
       drawParticles();
-    }
 
-    // Throttle resize events for better performance
-    let resizeTimeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        resizeCanvas();
-        createParticles();
-      }, 250);
+      // Throttle resize events for better performance
+      let resizeTimeout;
+      const handleResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          resizeCanvas();
+          createParticles();
+        }, 250);
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        cancelAnimationFrame(animationFrameId);
+        window.removeEventListener('resize', handleResize);
+        clearTimeout(resizeTimeout);
+      };
     };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimeout);
-    };
-  }, [isLowPerformance]);
+    
+    initAnimation();
+  }, []);
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
