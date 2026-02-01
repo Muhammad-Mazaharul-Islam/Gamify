@@ -3,68 +3,13 @@ import { motion } from 'framer-motion';
 
 const AnimatedBackground = React.memo(() => {
   const canvasRef = useRef(null);
-  const workerRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     
-    // Check for OffscreenCanvas support
-    const supportsOffscreenCanvas = typeof OffscreenCanvas !== 'undefined' && canvas.transferControlToOffscreen;
-    
-    if (supportsOffscreenCanvas) {
-      // Use Web Worker with OffscreenCanvas for better performance
-      console.log('Using OffscreenCanvas with Web Worker for optimal performance');
-      
-      try {
-        const offscreen = canvas.transferControlToOffscreen();
-        const worker = new Worker(new URL('../workers/particleWorker.js', import.meta.url), { type: 'module' });
-        workerRef.current = worker;
-        
-        const sendInit = () => {
-          worker.postMessage({
-            type: 'init',
-            data: {
-              canvas: offscreen,
-              width: window.innerWidth,
-              height: window.innerHeight,
-              particleCount: 25
-            }
-          }, [offscreen]);
-        };
-        
-        sendInit();
-        
-        // Handle resize
-        let resizeTimeout;
-        const handleResize = () => {
-          clearTimeout(resizeTimeout);
-          resizeTimeout = setTimeout(() => {
-            worker.postMessage({
-              type: 'resize',
-              data: {
-                width: window.innerWidth,
-                height: window.innerHeight,
-                particleCount: 25
-              }
-            });
-          }, 250);
-        };
-        
-        window.addEventListener('resize', handleResize);
-        
-        return () => {
-          worker.postMessage({ type: 'stop' });
-          worker.terminate();
-          window.removeEventListener('resize', handleResize);
-          clearTimeout(resizeTimeout);
-        };
-      } catch (error) {
-        console.log('OffscreenCanvas failed, falling back to main thread:', error);
-      }
-    }
-    
-    // Fallback: Traditional canvas rendering on main thread
-    console.log('Using traditional canvas rendering on main thread');
+    // Use traditional canvas rendering - most reliable across all scenarios
+    console.log('Initializing particle animation');
     
     const ctx = canvas.getContext('2d');
     let animationFrameId;
@@ -77,15 +22,15 @@ const AnimatedBackground = React.memo(() => {
 
     const createParticles = () => {
       particles = [];
-      const particleCount = 25;
+      const particleCount = 50;
       for (let i = 0; i < particleCount; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 2 + 1,
+          size: Math.random() * 3 + 1,
           speedX: (Math.random() - 0.5) * 0.5,
           speedY: (Math.random() - 0.5) * 0.5,
-          opacity: Math.random() * 0.5 + 0.2
+          opacity: Math.random() * 0.5 + 0.3
         });
       }
     };
@@ -93,7 +38,7 @@ const AnimatedBackground = React.memo(() => {
     const drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      particles.forEach((particle) => {
+      particles.forEach((particle, index) => {
         // Update position
         particle.x += particle.speedX;
         particle.y += particle.speedY;
@@ -109,6 +54,26 @@ const AnimatedBackground = React.memo(() => {
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(0, 255, 209, ${particle.opacity})`;
         ctx.fill();
+
+        // Draw connections between particles
+        for (let j = index + 1; j < particles.length; j++) {
+          const otherParticle = particles[j];
+          const dx = particle.x - otherParticle.x;
+          const dy = particle.y - otherParticle.y;
+          const distanceSquared = dx * dx + dy * dy;
+          const maxDistance = 150;
+          const maxDistanceSquared = maxDistance * maxDistance;
+
+          if (distanceSquared < maxDistanceSquared) {
+            const distance = Math.sqrt(distanceSquared);
+            ctx.beginPath();
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(otherParticle.x, otherParticle.y);
+            ctx.strokeStyle = `rgba(0, 255, 209, ${0.15 * (1 - distance / maxDistance)})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
       });
 
       animationFrameId = requestAnimationFrame(drawParticles);
