@@ -20,11 +20,24 @@ const AnimatedBackground = React.memo(() => {
             
             console.log('GPU Detected:', renderer, vendor);
             
-            // Check for integrated GPUs (Intel HD/UHD, AMD Vega integrated, etc.)
-            const isIntegrated = /Intel.*HD|Intel.*UHD|AMD.*Vega.*[0-9]{1,2}\s*Graphics|Mali|Adreno/i.test(renderer);
+            // High-end mobile GPUs that can handle animations
+            const isHighEndMobile = /Mali-G[6-9][0-9]|Adreno.*[6-8][0-9]{2}|Apple GPU/i.test(renderer);
             
-            setIsLowPerformance(isIntegrated);
-            return isIntegrated;
+            // Low-end GPUs that should disable animations
+            const isLowEndDesktop = /Intel.*HD|Intel.*UHD.*[2-6][0-9]{2}|AMD.*Vega.*[0-9]{1,2}\s*Graphics/i.test(renderer);
+            const isLowEndMobile = /Mali-[4-5][0-9]{2}|Mali-T|Adreno.*[2-5][0-9]{2}/i.test(renderer);
+            
+            const shouldDisable = (isLowEndDesktop || isLowEndMobile) && !isHighEndMobile;
+            
+            console.log('Performance Assessment:', {
+              isHighEndMobile,
+              isLowEndDesktop,
+              isLowEndMobile,
+              animationsDisabled: shouldDisable
+            });
+            
+            setIsLowPerformance(shouldDisable);
+            return shouldDisable;
           }
         }
         setIsLowPerformance(false);
