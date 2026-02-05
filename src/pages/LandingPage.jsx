@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Zap, Shield, Headphones, Tag, Star, ChevronRight } from 'lucide-react';
+import { ArrowRight, Zap, Shield, Headphones, Tag, Star, ChevronRight, ChevronLeft } from 'lucide-react';
 import AnimatedBackground from '../components/AnimatedBackground';
 import { games, features, testimonials, stats } from '../data/mock';
 
@@ -14,17 +14,57 @@ const iconMap = {
 
 const LandingPage = () => {
   const [currentGameIndex, setCurrentGameIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
 
-  // Auto-slide effect - changes every 3 seconds
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+
+  // Auto-slide effect - changes every 6 seconds (slower)
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentGameIndex((prevIndex) => (prevIndex + 1) % games.length);
-    }, 3000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, []);
 
   const currentGame = games[currentGameIndex];
+
+  // Navigate to next slide
+  const nextSlide = () => {
+    setCurrentGameIndex((prevIndex) => (prevIndex + 1) % games.length);
+  };
+
+  // Navigate to previous slide
+  const prevSlide = () => {
+    setCurrentGameIndex((prevIndex) => (prevIndex - 1 + games.length) % games.length);
+  };
+
+  // Touch handlers for swipe
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      nextSlide();
+    }
+    if (isRightSwipe) {
+      prevSlide();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
@@ -95,15 +135,35 @@ const LandingPage = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
-              className="relative hidden lg:block w-full aspect-[16/10]"
+              className="relative hidden lg:block w-full aspect-[16/10] group"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
             >
+              {/* Navigation Arrows */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-[#00FFD1]/20 border border-white/20 hover:border-[#00FFD1] rounded-r-full p-3 pr-4 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="w-6 h-6 text-white hover:text-[#00FFD1]" />
+              </button>
+              
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-[#00FFD1]/20 border border-white/20 hover:border-[#00FFD1] rounded-l-full p-3 pl-4 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-6 h-6 text-white hover:text-[#00FFD1]" />
+              </button>
+
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentGameIndex}
                   initial={{ opacity: 0, scale: 1.1 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 1 }}
+                  transition={{ duration: 0.8 }}
                   className="absolute inset-0 rounded-lg overflow-hidden"
                 >
                   <div className="relative w-full h-full">
