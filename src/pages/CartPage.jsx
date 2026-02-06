@@ -190,11 +190,6 @@ const CartPage = () => {
                           </label>
                         </div>
 
-                        {/* Product Image */}
-                        <div className="w-24 h-24 bg-white/10 border border-white/10 flex items-center justify-center flex-shrink-0 relative">
-                          <ShoppingCart className="w-10 h-10 text-white/40" />
-                        </div>
-
                         {/* Product Details */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between mb-3">
