@@ -123,9 +123,6 @@ const Footer = () => {
           <p className="text-white/40 text-sm">
             © {currentYear} Gamify. All rights reserved.
           </p>
-          <p className="text-white/40 text-sm">
-            Made with passion for gamers worldwide
-          </p>
         </div>
       </div>
     </footer>
