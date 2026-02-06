@@ -9,7 +9,7 @@ import { useCart } from '../contexts/CartContext';
 const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { cart, isCartOpen, setIsCartOpen, addToCart, removeFromCart, updateQuantity, cartTotal, cartItemCount } = useCart();
+  const { addToCart, cartItemCount } = useCart();
   
   const [selectedGame, setSelectedGame] = useState(null); // null = showing game cards
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,7 +87,7 @@ const ShopPage = () => {
                 />
               </div>
               <button
-                onClick={() => setIsCartOpen(true)}
+                onClick={() => navigate('/cart')}
                 className="relative btn-primary flex items-center gap-2"
               >
                 <ShoppingCart className="w-5 h-5" />
@@ -184,7 +184,7 @@ const ShopPage = () => {
                     <p className="text-white/60">{selectedGame.description}</p>
                   </div>
                   <button
-                    onClick={() => setIsCartOpen(true)}
+                    onClick={() => navigate('/cart')}
                     className="relative btn-primary flex items-center gap-2"
                   >
                     <ShoppingCart className="w-5 h-5" />

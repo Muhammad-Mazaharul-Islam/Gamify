@@ -185,4 +185,29 @@ code {
   color: black;
 }
 
+/* Custom Checkbox Styles */
+input[type="checkbox"] {
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #00FFD1;
+  border-color: #00FFD1;
+}
+
+input[type="checkbox"]:focus {
+  outline: 2px solid rgba(0, 255, 209, 0.3);
+  outline-offset: 2px;
+}
+
+input[type="checkbox"]:hover:not(:disabled) {
+  border-color: rgba(0, 255, 209, 0.5);
+}
+
+input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 

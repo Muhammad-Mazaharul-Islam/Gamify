@@ -5,7 +5,6 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const addToCart = (game, currency) => {
     const existingItem = cart.find(
@@ -59,8 +58,6 @@ export const CartProvider = ({ children }) => {
 
   const value = {
     cart,
-    isCartOpen,
-    setIsCartOpen,
     addToCart,
     removeFromCart,
     updateQuantity,

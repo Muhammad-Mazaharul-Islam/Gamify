@@ -12,7 +12,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal, cartItemCount } = useCart();
+  const { cartItemCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,7 +79,7 @@ const Header = () => {
             <>
               {/* Cart Button */}
               <button
-                onClick={() => setIsCartOpen(true)}
+                onClick={() => navigate('/cart')}
                 className="relative text-white/80 hover:text-white transition-colors p-2"
               >
                 <ShoppingCart className="w-5 h-5" />
@@ -152,7 +152,7 @@ const Header = () => {
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    setIsCartOpen(true);
+                    navigate('/cart');
                   }}
                   className="text-lg font-medium py-2 text-white/60 text-left flex items-center gap-2"
                 >
@@ -197,112 +197,6 @@ const Header = () => {
               )}
             </nav>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Cart Sidebar */}
-      <AnimatePresence>
-        {isCartOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 z-40"
-              onClick={() => setIsCartOpen(false)}
-            />
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 20 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-black border-l border-white/10 z-50 flex flex-col"
-            >
-              {/* Cart Header */}
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Your Cart</h2>
-                <button
-                  onClick={() => setIsCartOpen(false)}
-                  className="p-2 hover:bg-white/10 transition-colors"
-                >
-                  <X className="w-6 h-6 text-white" />
-                </button>
-              </div>
-
-              {/* Cart Items */}
-              <div className="flex-1 overflow-auto p-6">
-                {cart.length === 0 ? (
-                  <div className="text-center py-12">
-                    <ShoppingCart className="w-16 h-16 text-white/20 mx-auto mb-4" />
-                    <p className="text-white/60">Your cart is empty</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {cart.map((item) => (
-                      <div
-                        key={`${item.gameId}-${item.currencyId}`}
-                        className="bg-white/5 border border-white/10 p-4"
-                      >
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="text-white font-semibold">{item.currencyName}</h3>
-                            <p className="text-white/50 text-sm">{item.gameName}</p>
-                          </div>
-                          <button
-                            onClick={() => removeFromCart(item.gameId, item.currencyId)}
-                            className="text-white/40 hover:text-red-400 transition-colors"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => updateQuantity(item.gameId, item.currencyId, item.quantity - 1)}
-                              className="w-8 h-8 bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-                            >
-                              -
-                            </button>
-                            <span className="text-white w-8 text-center">{item.quantity}</span>
-                            <button
-                              onClick={() => updateQuantity(item.gameId, item.currencyId, item.quantity + 1)}
-                              className="w-8 h-8 bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-                            >
-                              +
-                            </button>
-                          </div>
-                          <span className="text-[#00FFD1] font-semibold">
-                            ${(item.price * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Cart Footer */}
-              {cart.length > 0 && (
-                <div className="p-6 border-t border-white/10">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-white/60">Total</span>
-                    <span className="text-2xl font-bold text-[#00FFD1]">
-                      ${cartTotal.toFixed(2)}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setIsCartOpen(false);
-                      navigate('/checkout', { state: { cart } });
-                    }}
-                    className="btn-primary w-full text-center text-lg"
-                  >
-                    Proceed to Checkout
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          </>
         )}
       </AnimatePresence>
     </header>
